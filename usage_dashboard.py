@@ -56,7 +56,7 @@ def stacked_chart(data, dim, title, horizontal=False):
         kw = dict(y=data[dim], x=data[col], orientation="h") if horizontal else dict(x=data[dim], y=data[col])
         fig.add_trace(go.Bar(name=label, marker_color=color, **kw))
     fig.update_layout(barmode="stack", title=title, plot_bgcolor="#F7F9FC",
-                      paper_bgcolor="white", legend=dict(orientation="h", y=1.06, x=0),
+                      paper_bgcolor="white", legend=dict(orientation="h", y=-0.15, x=0),
                       yaxis_title="", xaxis_title="")
     return fig
 

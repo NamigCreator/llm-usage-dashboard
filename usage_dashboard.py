@@ -85,8 +85,17 @@ if run:
 df = st.session_state["df"]
 
 if df.empty:
-    st.warning("No data for the selected period.")
-    st.stop()
+    import pandas as pd
+    fallback_df = pd.read_excel("sample_data.xlsx", sheet_name="Usage")
+    fallback_df["date"] = fallback_df["date"].astype(str)
+    mask = (fallback_df["date"] >= str(start)) & (fallback_df["date"] <= str(end))
+    fallback_df = fallback_df[mask].reset_index(drop=True)
+    if not fallback_df.empty:
+        st.warning("Live data unavailable — showing cached data from local file.")
+        df = fallback_df
+    else:
+        st.warning("No data for the selected period.")
+        st.stop()
 
 # project filter in sidebar
 with st.sidebar:
@@ -98,10 +107,9 @@ filtered = df if selected_project == "All" else df[df.project == selected_projec
 # export button in sidebar
 with st.sidebar:
     st.divider()
-    @st.cache_data
-    def _to_xlsx(_df):
+    def _to_xlsx(df):
         buf = BytesIO()
-        _df.to_excel(buf, index=False, sheet_name="Usage")
+        df.to_excel(buf, index=False, sheet_name="Usage")
         return buf.getvalue()
 
     st.download_button("Export XLSX", data=_to_xlsx(filtered),
